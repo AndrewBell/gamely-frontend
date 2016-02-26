@@ -1,0 +1,75 @@
+<!--suppress HtmlUnknownTarget -->
+<!-- Spring uses webjar-locator to find it's dependencies -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css"
+          href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript"
+            src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body ng-app="app" ng-controller="home as home" ng-cloak>
+<h1>Bored Games</h1>
+<div class="container" ng-show="!home.authenticated">
+    <div>
+        <a href="/login/facebook">Login with Facebook</a>
+    </div>
+</div>
+<div class="container" ng-show="home.authenticated">
+    <div>
+        Hi <span ng-bind="home.getUser()"></span>
+        <button ng-click="home.logout()" class="btn btn-primary">Logout</button>
+    </div>
+</div>
+<script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
+<script type="text/javascript">
+    angular
+        .module("app", [])
+        .config(
+            function ($httpProvider) {
+                $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+            })
+        .controller("home", function ($http, $location) {
+            var self = this;
+            self.user = '';
+            self.authenticated = false;
+            fetchUser();
+
+            self.logout = function () {
+                $http.post('logout', {}).success(function () {
+                    console.log("Logout success");
+                    self.authenticated = false;
+                    $location.path("/");
+                }).error(function () {
+                    console.log("Logout failed");
+                    self.authenticated = false;
+                });
+            };
+            self.getUser = function () {
+                if (self.user==='' && self.authenticated === true) {
+                    fetchUser();
+                }
+                return self.user;
+            };
+            function fetchUser() {
+                $http.get("/user").success(function (data) {
+                    console.log("Found user");
+                    self.user = data.name;
+                    self.authenticated = true;
+                }).error(function () {
+                    console.log("User not found");
+                    self.user = "N/A";
+                    self.authenticated = false;
+                });
+            }
+        });
+</script>
+</body>
+</html>
