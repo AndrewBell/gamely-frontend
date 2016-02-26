@@ -1,5 +1,6 @@
 package com.recursivechaos.gamely.config;
 
+import com.recursivechaos.gamely.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.ResourceServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
@@ -52,8 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/"))
                 .and().logout().logoutSuccessUrl("/").permitAll()
                 .and().csrf().csrfTokenRepository(csrfTokenRepository())
-                .and().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class)
-                .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
+                .and().addFilterAfter(csrfHeaderFilter(), CsrfFilter.class);
+//                .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
     }
 
     @Bean
@@ -64,21 +65,38 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return registration;
     }
 
-    private Filter ssoFilter() {
-        CompositeFilter filter = new CompositeFilter();
-        List<Filter> filters = new ArrayList<>();
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean(OAuth2ClientAuthenticationProcessingFilter filter){
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        registration.setFilter(filter);
+        registration.setEnabled(false);
+        return registration;
+    }
 
-        OAuth2ClientAuthenticationProcessingFilter facebookFilter =
-            new OAuth2ClientAuthenticationProcessingFilter("/login/facebook");
+    @Bean
+    public OAuth2ClientAuthenticationProcessingFilter userFilter(UserRepository userRepository){
+        OAuth2ClientAuthenticationProcessingFilter facebookFilter = new OAuth2ClientAuthenticationProcessingFilterImpl("/login/facebook", userRepository);
         OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
         facebookFilter.setRestTemplate(facebookTemplate);
-        facebookFilter.setTokenServices(
-            new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId()));
-        filters.add(facebookFilter);
-
-        filter.setFilters(filters);
-        return filter;
+        facebookFilter.setTokenServices(new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId()));
+        return facebookFilter;
     }
+
+//    private Filter ssoFilter() {
+//        CompositeFilter filter = new CompositeFilter();
+//        List<Filter> filters = new ArrayList<>();
+//
+//        OAuth2ClientAuthenticationProcessingFilter facebookFilter =
+//            new OAuth2ClientAuthenticationProcessingFilter("/login/facebook");
+//        OAuth2RestTemplate facebookTemplate = new OAuth2RestTemplate(facebook(), oauth2ClientContext);
+//        facebookFilter.setRestTemplate(facebookTemplate);
+//        facebookFilter.setTokenServices(
+//            new UserInfoTokenServices(facebookResource().getUserInfoUri(), facebook().getClientId()));
+//        filters.add(facebookFilter);
+//
+//        filter.setFilters(filters);
+//        return filter;
+//    }
 
     @Bean
     @ConfigurationProperties("facebook.client")
