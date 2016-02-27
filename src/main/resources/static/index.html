@@ -27,6 +27,12 @@
         Hi <span ng-bind="home.getUser()"></span>
         <button ng-click="home.logout()" class="btn btn-primary">Logout</button>
     </div>
+
+    <div ng-controller="gameController as gameCtrl">
+        <ul>
+            <li ng-repeat="game in gameCtrl.games">{{game}}</li>
+        </ul>
+    </div>
 </div>
 <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
 <script type="text/javascript">
@@ -42,8 +48,8 @@
 
             self.user = '';
             self.authenticated = false;
-            self.getUser = getUser();
-            self.logout = logout();
+            self.getUser = getUser;
+            self.logout = logout;
 
             fetchUser();
 
