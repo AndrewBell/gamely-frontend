@@ -37,12 +37,40 @@
                 $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
             })
         .controller("home", function ($http, $location) {
+
             var self = this;
+
             self.user = '';
             self.authenticated = false;
+            self.getUser = getUser();
+            self.logout = logout();
+
             fetchUser();
 
-            self.logout = function () {
+            function fetchUser() {
+                $http.get("/user").success(function (data) {
+                    if (angular.isDefined(data.name)) {
+                        console.log("Found user: " + data.facebookId);
+                        self.user = data.name;
+                        self.authenticated = true;
+                    } else {
+                        console.log("No valid user data passed");
+                    }
+                }).error(function () {
+                    console.log("User not found");
+                    self.user = "N/A";
+                    self.authenticated = false;
+                });
+            }
+
+            function getUser() {
+                if (self.user === '' && self.authenticated === true) {
+                    fetchUser();
+                }
+                return self.user;
+            }
+
+            function logout() {
                 $http.post('logout', {}).success(function () {
                     console.log("Logout success");
                     self.authenticated = false;
@@ -51,24 +79,13 @@
                     console.log("Logout failed");
                     self.authenticated = false;
                 });
-            };
-            self.getUser = function () {
-                if (self.user==='' && self.authenticated === true) {
-                    fetchUser();
-                }
-                return self.user;
-            };
-            function fetchUser() {
-                $http.get("/user").success(function (data) {
-                    console.log("Found user");
-                    self.user = data.name;
-                    self.authenticated = true;
-                }).error(function () {
-                    console.log("User not found");
-                    self.user = "N/A";
-                    self.authenticated = false;
-                });
             }
+        })
+        .controller("gameController", function () {
+
+            var vm = this;
+            vm.games = ["X-Wing", "Imperial Assault", "Formula D"];
+
         });
 </script>
 </body>
