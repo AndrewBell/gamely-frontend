@@ -9,11 +9,9 @@
     <meta name="description" content=""/>
     <meta name="viewport" content="width=device-width"/>
     <base href="/"/>
-    <link rel="stylesheet" type="text/css"
-          href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
     <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
-    <script type="text/javascript"
-            src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body ng-app="app" ng-controller="home as home" ng-cloak>
 <h1>Bored Games</h1>
@@ -24,13 +22,13 @@
 </div>
 <div class="container" ng-show="home.authenticated">
     <div>
-        Hi <span ng-bind="home.getUser()"></span>
+        Hi <span ng-bind="home.getUser()"></span> <br>
         <button ng-click="home.logout()" class="btn btn-primary">Logout</button>
     </div>
 
     <div ng-controller="gameController as gameCtrl">
         <ul>
-            <li ng-repeat="game in gameCtrl.games">{{game}}</li>
+            <li ng-repeat="game in gameCtrl.games">{{game.name}}</li>
         </ul>
     </div>
 </div>
@@ -42,14 +40,13 @@
             function ($httpProvider) {
                 $httpProvider.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
             })
-        .controller("home", function ($http, $location) {
+        .controller("home", function ($http, $location, $scope) {
 
-            var self = this;
-
-            self.user = '';
-            self.authenticated = false;
-            self.getUser = getUser;
-            self.logout = logout;
+            var vm = this;
+            vm.user = '';
+            vm.authenticated = false;
+            vm.getUser = getUser;
+            vm.logout = logout;
 
             fetchUser();
 
@@ -57,40 +54,59 @@
                 $http.get("/user").success(function (data) {
                     if (angular.isDefined(data.name)) {
                         console.log("Found user: " + data.facebookId);
-                        self.user = data.name;
-                        self.authenticated = true;
+                        vm.user = data.name;
+                        vm.authenticated = true;
+                        $scope.$broadcast('authenticated', 'true');
                     } else {
                         console.log("No valid user data passed");
                     }
                 }).error(function () {
                     console.log("User not found");
-                    self.user = "N/A";
-                    self.authenticated = false;
+                    vm.user = "N/A";
+                    vm.authenticated = false;
                 });
             }
 
             function getUser() {
-                if (self.user === '' && self.authenticated === true) {
+                if (vm.user === '' && vm.authenticated === true) {
                     fetchUser();
                 }
-                return self.user;
+                return vm.user;
             }
 
             function logout() {
                 $http.post('logout', {}).success(function () {
                     console.log("Logout success");
-                    self.authenticated = false;
+                    vm.authenticated = false;
                     $location.path("/");
                 }).error(function () {
                     console.log("Logout failed");
-                    self.authenticated = false;
+                    vm.authenticated = false;
                 });
             }
         })
-        .controller("gameController", function () {
+        .controller("gameController", function ($scope, $http) {
 
             var vm = this;
-            vm.games = ["X-Wing", "Imperial Assault", "Formula D"];
+            vm.games = [];
+
+            $scope.$on('authenticated', function (event, data) {
+                console.log("Authenticated: " + data);
+                getGames();
+            });
+
+            function getGames() {
+                $http.get("/games").success(function (data) {
+                    if (data._embedded.games.length > 0) {
+                        console.log("Returning games: " + angular.toJson(data._embedded.games));
+                        vm.games = data._embedded.games;
+                    } else {
+                        console.log("No valid games data passed");
+                    }
+                }).error(function () {
+                    console.log("Games not found");
+                });
+            }
 
         });
 </script>
