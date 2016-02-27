@@ -26,10 +26,17 @@
         <button ng-click="home.logout()" class="btn btn-primary">Logout</button>
     </div>
 
+    <br><h2>Global Game Library</h2>
+
     <div ng-controller="gameController as gameCtrl">
         <ul>
             <li ng-repeat="game in gameCtrl.games">{{game.name}}</li>
         </ul>
+
+        <form novalidate class="simple-form">
+            Game: <input type="text" ng-model="game.name"/>
+            <input type="submit" ng-click="gameCtrl.addGame(game)" value="Add Game" class="btn btn-primary"/>
+        </form>
     </div>
 </div>
 <script type="text/javascript" src="/webjars/angularjs/angular.min.js"></script>
@@ -89,6 +96,7 @@
 
             var vm = this;
             vm.games = [];
+            vm.addGame = addGame;
 
             $scope.$on('authenticated', function (event, data) {
                 console.log("Authenticated: " + data);
@@ -106,6 +114,15 @@
                 }).error(function () {
                     console.log("Games not found");
                 });
+            }
+
+            function addGame(game) {
+                $http.post("/games", game).success(function (data) {
+                    console.log("Game added: " + angular.toJson(data));
+                    getGames();
+                }).error(function (data) {
+                    console.log("Unable to add game: " + angular.toJson(data));
+                })
             }
 
         });
