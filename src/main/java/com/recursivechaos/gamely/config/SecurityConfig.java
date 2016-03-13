@@ -1,3 +1,10 @@
+/**
+ * Created by Andrew Bell 3/12/2016
+ * www.recursivechaos.com
+ * andrew@recursivechaos.com
+ * Licensed under MIT License 2016. See license.txt for details.
+ */
+
 package com.recursivechaos.gamely.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +42,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+// Modified from https://spring.io/guides/tutorials/spring-boot-oauth2/ under ASLv2
 
 @Configuration
 @EnableOAuth2Client
