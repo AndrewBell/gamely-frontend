@@ -8,9 +8,11 @@
 package com.recursivechaos.gamely.domain;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -18,9 +20,11 @@ import java.util.Map;
 
 @Data
 @Entity
+@NoArgsConstructor
 public class User {
 
     @Id
+    @GeneratedValue
     private Integer id;
     private String name;
     private String facebookId;
@@ -29,6 +33,7 @@ public class User {
     public User(Principal principal) {
         OAuth2Authentication auth = (OAuth2Authentication) principal;
         this.facebookId = auth.getName();
+        @SuppressWarnings("unchecked")
         Map<String, String> details = (Map<String, String>) auth.getUserAuthentication().getDetails();
         this.name = details.get("name");
         this.lastLogin = LocalDateTime.now();

@@ -8,7 +8,7 @@
 package com.recursivechaos.gamely;
 
 import com.recursivechaos.gamely.domain.Game;
-import com.recursivechaos.gamely.repository.GameRepository;
+import com.recursivechaos.gamely.service.GameRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class Application {
         return (evt) -> {
             String[] games = {"X-Wing", "XCOM", "Formula D"};
             for (String game : games) {
-                LOGGER.info("Adding game {}", game);
+                LOGGER.debug("Adding game {}", game);
                 gameRepository.save(new Game(game));
             }
         };

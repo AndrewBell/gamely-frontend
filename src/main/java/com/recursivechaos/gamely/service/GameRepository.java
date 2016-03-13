@@ -5,7 +5,7 @@
  * Licensed under MIT License 2016. See license.txt for details.
  */
 
-package com.recursivechaos.gamely.repository;
+package com.recursivechaos.gamely.service;
 
 import com.recursivechaos.gamely.domain.Game;
 import org.springframework.data.jpa.repository.JpaRepository;

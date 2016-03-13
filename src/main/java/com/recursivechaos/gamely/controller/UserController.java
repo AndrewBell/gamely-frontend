@@ -8,6 +8,8 @@
 package com.recursivechaos.gamely.controller;
 
 import com.recursivechaos.gamely.domain.User;
+import com.recursivechaos.gamely.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,9 +18,12 @@ import java.security.Principal;
 @RestController
 public class UserController {
 
+    @Autowired
+    UserService userService;
+
     @RequestMapping("/user")
     public User user(Principal principal) {
-        return new User(principal);
+        return userService.getUser(principal);
     }
 
 }
